@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SuperStore Sales Performance & Diagnostic Deck</title>
+<style>
+  :root {
+    --bg-dark: #0f172a;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-green: #22c55e;
+    --accent-red: #ef4444;
+    --accent-amber: #f59e0b;
+    --accent-purple: #a855f7;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background-color: #020617;
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    gap: 3rem;
+  }
+
+  .slide {
+    width: 1000px;
+    height: 562.5px; /* 16:9 Aspect Ratio */
+    background-color: var(--bg-dark);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+  }
+
+  /* Slide Title Header */
+  .slide-header {
+    border-bottom: 2px solid var(--card-border);
+    padding-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .slide-header h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+  }
+
+  .slide-header .tag {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--accent-blue);
+    background-color: rgba(56, 189, 248, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+
+  /* Slide Content Area */
+  .slide-content {
+    flex: 1;
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  /* Footer */
+  .slide-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(51, 65, 85, 0.5);
+    padding-top: 0.75rem;
+  }
+
+  /* Common Components */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; width: 100%; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; width: 100%; }
+
+  .card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .text-green { color: var(--accent-green); }
+  .text-red { color: var(--accent-red); }
+  .text-blue { color: var(--accent-blue); }
+  .text-amber { color: var(--accent-amber); }
+
+  .metric-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+
+  th {
+    background-color: rgba(30, 41, 59, 0.8);
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 2px solid var(--card-border);
+  }
+
+  td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .badge {
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .badge-success { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+  .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+  .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+  .badge-neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+  /* Bullet List Styling */
+  ul.custom-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  ul.custom-list li {
+    position: relative;
+    padding-left: 1.25rem;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: #cbd5e1;
+  }
+
+  ul.custom-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--accent-blue);
+    font-weight: bold;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  /* Title Slide Specifics */
+  .title-slide {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4rem;
+  }
+
+  .title-slide h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right, #f8fafc, #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .title-slide p {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin-bottom: 2rem;
+  }
+
+  .title-meta {
+    display: flex;
+    gap: 2rem;
+    border-top: 1px solid var(--card-border);
+    padding-top: 1.5rem;
+    width: 100%;
+  }
+
+  .title-meta-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .title-meta-item .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+  .title-meta-item .val { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+
+  /* Diagram Box */
+  .flow-box {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title Slide -->
+<div class="slide title-slide">
+  <div>
+    <span class="tag" style="margin-bottom: 1rem; display: inline-block;">Executive Diagnostics</span>
+    <h1>SuperStore 2015 Performance Review</h1>
+    <p>Comprehensive Diagnostic Analysis, Regional Breakdown & Strategic Reallocation Framework</p>
+  </div>
+  <div class="title-meta">
+    <div class="title-meta-item">
+      <span class="label">Prepared By</span>
+      <span class="val">Senior Data Analyst</span>
+    </div>
+    <div class="title-meta-item">
+      <span class="label">Target Audience</span>
+      <span class="val">Executive Leadership / C-Suite</span>
+    </div>
+    <div class="title-meta-item">
+      <span class="label">Data Scope</span>
+      <span class="val">FY 2015 Operations</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: Executive Summary & Health Check -->
+<div class="slide">
+  <div class="slide-header">
+    <h2>Executive Diagnostic Dashboard</h2>
+    <span class="tag">Performance Overview</span>
+  </div>
+  <div class="slide-content" style="flex-direction: column; gap: 1rem;">
+    <div class="grid-4">
+      <div class="card">
+        <span class="card-header">Monthly Revenue (June)</span>
+        <span class="metric-value text-blue">$355,368.80</span>
+        <span class="metric-sub text-green">▲ +15.92% MoM Growth</span>
+      </div>
+      <div class="card">
+        <span class="card-header">Top Asset Sales</span>
+        <span class="metric-value text-main">$69,013.48</span>
+        <span class="metric-sub">Fellowes PB500 Binding Machine</span>
+      </div>
+      <div class="card">
+        <span class="card-header">Primary Product Drain</span>
+        <span class="metric-value text-red">-$7,240.07</span>
+        <span class="metric-sub">Tables Sub-Category Loss</span>
+      </div>
+      <div class="card">
+        <span class="card-header">Primary Regional Drain</span>
+        <span class="metric-value text-red">-$14,424.05</span>
+        <span class="metric-sub">South Region Net Loss</span>
+      </div>
+    </div>
+    <div class="card" style="flex: 1; justify-content: flex-start; gap: 0.75rem;">
+      <span class="card-header" style="color: var(--accent-blue);">Executive Takeaway</span>
+      <p style="font-size: 0.95rem; line-height: 1.5; color: #cbd5e1;">
+        Strong top-line momentum (+15.92% MoM in June) obscures critical localized profit erosion. While high-performing individual assets and core categories drive robust gross returns, uncontrolled losses in the <strong>South Region</strong> and specific categories like <strong>Furniture Tables</strong> severely drag down overall business margins. Immediate strategic capital reallocation is required.
+      </p>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>SuperStore Sales Project</span>
+    <span>Slide 2 of 8</span>
+  </div>
+</div>
+
+<!-- SLIDE 3: Key Insight 1 - Category Analysis -->
+<div class="slide">
+  <div class="slide-header">
+    <h2>Core Profitability: Category Analysis</h2>
+    <span class="tag">Category Dynamics</span>
+  </div>
+  <div class="slide-content">
+    <div class="grid-2">
+      <div class="card" style="justify-content: flex-start; gap: 1rem;">
+        <h3 style="font-size: 1.1rem; color: var(--accent-blue);">The Revenue vs. Profit Illusion</h3>
+        <ul class="custom-list">
+          <li><strong>Technology Leads Revenue:</strong> Generates $712,264.95 in total revenue but operates at a moderate 10.57% profit margin.</li>
+          <li><strong>Office Supplies Leads Profit:</strong> Generates highest net profit of <strong>$89,525.01</strong> with a store-leading profit margin of <strong>16.24%</strong>.</li>
+          <li><strong>Furniture Margin Pressure:</strong> Lags significantly with an 8.97% profit margin due to unprofitable sub-lines.</li>
+        </ul>
+      </div>
+      <div class="card" style="justify-content: flex-start; gap: 1rem;">
+        <h3 style="font-size: 1.1rem; color: var(--accent-green);">The "Binder Engine" Catalyst</h3>
+        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 1rem; border-radius: 6px;">
+          <span style="font-size: 1.8rem; font-weight: 800; color: var(--accent-green); display: block;">$59,296.39</span>
+          <span style="font-size: 0.85rem; color: #cbd5e1;">Profit generated by <strong>Binders &amp; Binder Accessories</strong> alone.</span>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.4;">
+          This single sub-category accounts for an outsized <strong>26.5% of overall store profit</strong>, proving to be the primary efficiency driver across the entire business portfolio.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>SuperStore Sales Project</span>
+    <span>Slide 3 of 8</span>
+  </div>
+</div>
+
+<!-- SLIDE 4: Key Insight 2 - Margin Erosion Drivers -->
+<div class="slide">
+  <div class="slide-header">
+    <h2>Isolating Catalysts of Margin Erosion</h2>
+    <span class="tag">Profit Drain Diagnostic</span>
+  </div>
+  <div class="slide-content">
+    <div class="grid-3">
+      <div class="card" style="border-top: 4px solid var(--accent-red);">
+        <div>
+          <span class="badge badge-danger">Deepest Drain</span>
+          <h3 style="margin-top: 0.5rem; font-size: 1.1rem;">Furniture Tables</h3>
+          <span class="metric-value text-red" style="font-size: 1.8rem; margin: 0.5rem 0;">-$7,240.07</span>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+          Operates at a direct net loss, pulling down the entire Furniture department margin to 8.97%. High shipping overhead and aggressive pricing structures are key drivers.
+        </p>
+      </div>
+
+      <div class="card" style="border-top: 4px solid var(--accent-amber);">
+        <div>
+          <span class="badge badge-warning">The Volume Trap</span>
+          <h3 style="margin-top: 0.5rem; font-size: 1.1rem;">Office Machines</h3>
+          <span class="metric-value text-amber" style="font-size: 1.8rem; margin: 0.5rem 0;">2.77% Margin</span>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+          Generates massive top-line revenue ($318,169.68) but yields a razor-thin profit of only $8,824.39, highlighting severe fulfillment or contract discounting issues.
+        </p>
+      </div>
+
+      <div class="card" style="border-top: 4px solid var(--accent-red);">
+        <div>
+          <span class="badge badge-danger">Aggregate Bleed</span>
+          <h3 style="margin-top: 0.5rem; font-size: 1.1rem;">Minor Lines</h3>
+          <span class="metric-value text-red" style="font-size: 1.8rem; margin: 0.5rem 0;">Negative ROI</span>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+          Lines including Rubber Bands, Scissors, Envelopes, and Pens &amp; Art Supplies operate at cumulative net losses, indicating inefficient discount structures on low-ticket items.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>SuperStore Sales Project</span>
+    <span>Slide 4 of 8</span>
+  </div>
+</div>
+
+<!-- SLIDE 5: Key Insight 3 - Customer Segment Analysis -->
+<div class="slide">
+  <div class="slide-header">
+    <h2>Customer Segment Efficiency</h2>
+    <span class="tag">Segment Performance</span>
+  </div>
+  <div class="slide-content" style="flex-direction: column; gap: 1rem;">
+    <div class="grid-2" style="flex: 1;">
+      <div class="card" style="justify-content: space-between; border-left: 4px solid var(--accent-green);">
+        <div>
+          <span class="badge badge-success">Efficiency Engine</span>
+          <h3 style="font-size: 1.2rem; margin-top: 0.25rem;">Small Business</h3>
+          <div style="margin-top: 0.5rem;">
+            <span class="metric-value text-green">16.31%</span>
+            <span style="font-size: 0.9rem; color: var(--text-muted);"> Profit Margin</span>
+          </div>
+        </div>
+        <div style="font-size: 0.85rem; color: #cbd5e1; display: flex; justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 0.5rem;">
+          <span>Revenue: <strong>$400,293.94</strong></span>
+          <span>Profit: <strong>$65,304.91</strong></span>
+        </div>
+      </div>
+
+      <div class="card" style="justify-content: space-between; border-left: 4px solid var(--accent-amber);">
+        <div>
+          <span class="badge badge-warning">Low Margin Volume</span>
+          <h3 style="font-size: 1.2rem; margin-top: 0.25rem;">Corporate Accounts</h3>
+          <div style="margin-top: 0.5rem;">
+            <span class="metric-value text-amber">8.28%</span>
+            <span style="font-size: 0.9rem; color: var(--text-muted);"> Profit Margin</span>
+          </div>
+        </div>
+        <div style="font-size: 0.85rem; color: #cbd5e1; display: flex; justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 0.5rem;">
+          <span>Revenue: <strong>$657,784.53</strong></span>
+          <span>Profit: <strong>$54,444.19</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 1rem;">
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.4;">
+        <strong style="color: var(--text-main);">Strategic Insight:</strong> Corporate accounts represent the largest overall revenue block ($657.8k) but effectively deliver <strong>half the profit efficiency</strong> of Small Business accounts (8.28% vs 16.31%). This points to heavy institutional discounting and higher fulfillment overhead per order.
+      </p>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>SuperStore Sales Project</span>
+    <span>Slide 5 of 8</span>
+  </div>
+</div>
+
+<!-- SLIDE 6: Regional Scorecard & South Breakdown -->
+<div class="slide">
+  <div class="slide-header">
+    <h2>Regional Executive Scorecard</h2>
+    <span class="tag">Geographic Diagnostics</span>
+  </div>
+  <div class="slide-content">
+    <div style="width: 100%;">
+      <table>
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Total Sales ($)</th>
+            <th>Profit ($)</th>
+            <th>Profit Margin (%)</th>
+            <th>Strategic Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Central</strong></td>
+            <td>$448,284.70</td>
+            <td class="text-green">$77,365.47</td>
+            <td><span class="badge badge-success">17.26%</span></td>
+            <td>Most Efficient Market</td>
+          </tr>
+          <tr>
+            <td><strong>East</strong></td>
+            <td>$592,171.49</td>
+            <td class="text-green">$85,291.40</td>
+            <td><span class="badge badge-success">14.40%</span></td>
+            <td>Primary Revenue Engine</td>
+          </tr>
+          <tr>
+            <td><strong>West</strong></td>
+            <td>$526,776.57</td>
+            <td class="text-green">$75,844.79</td>
+            <td><span class="badge badge-success">14.40%</span></td>
+            <td>High-Performing Core</td>
+          </tr>
+          <tr style="background: rgba(239, 68, 68, 0.05);">
+            <td><strong>South</strong></td>
+            <td>$357,105.12</td>
+            <td class="text-red">-$14,424.05</td>
+            <td><span class="badge badge-danger">-4.04%</span></td>
+            <td>Critical Profit Drag</td>
+          </tr>
+          <tr>
+            <td><strong>North</strong></td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td><span class="badge badge-neutral">N/A</span></td>
+            <td>Unassigned / Inactive</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="card" style="margin-top: 1rem; border-left: 4px solid var(--accent-red); background: rgba(239, 68, 68, 0.08);">
+        <h4 style="font-size: 0.9rem; color: var(--accent-red); margin-bottom: 0.25rem;">Deconstructing the South Margin Collapse</h4>
+        <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.4;">
+          The loss in the South region (-$14.4k) is primarily driven by the <strong>Technology sector (-$13,449.78)</strong>, with <strong>Telephones &amp; Communication</strong> accounting for -$12,905.00 in losses alone. Uncontrolled contractual discounts and regional freight costs are the main catalysts.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>SuperStore Sales Project</span>
+    <span>Slide 6 of 8</span>
+  </div>
+</div>
+
+<!-- SLIDE 7: Strategic Expansion vs Artifact (North Region) -->
+<div class="slide">
+  <div class="slide-header">
+    <h2>Territory Governance: "North" Region Decision</h2>
+    <span class="tag">Governance</span>
+  </div>
+  <div class="slide-content">
+    <div class="grid-2">
+      <div class="card" style="justify-content: flex-start; gap: 1rem; border-top: 4px solid var(--accent-blue);">
+        <span class="badge badge-warning" style="width: fit-content;">Path A</span>
+        <h3 style="font-size: 1.1rem;">Strategic Expansion</h3>
+        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.4;">
+          If "North" represents an intentionally designated expansion territory:
+        </p>
+        <ul class="custom-list">
+          <li>Approve dedicated 2016 capital deployment.</li>
+          <li>Assign regional sales management to establish initial baseline pipelines.</li>
+          <li>Set explicit ROI milestones prior to full supply chain expansion.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="justify-content: flex-start; gap: 1rem; border-top: 4px solid var(--accent-purple);">
+        <span class="badge badge-neutral" style="width: fit-content;">Path B</span>
+        <h3 style="font-size: 1.1rem;">Data Consolidation</h3>
+        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.4;">
+          If "North" is a CRM classification artifact ($0 Revenue / 0 Orders):
+        </p>
+        <ul class="custom-list">
+          <li>Purge the empty designation from executive dashboards.</li>
+          <li>Consolidate lingering inactive regional accounts under East / Central umbrellas.</li>
+          <li>Streamline reporting to prevent metric skewing across reporting systems.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>SuperStore Sales Project</span>
+    <span>Slide 7 of 8</span>
+  </div>
+</div>
+
+<!-- SLIDE 8: Executive Action Plan / Roadmap -->
+<div class="slide">
+  <div class="slide-header">
+    <h2>2016 Executive Action Matrix</h2>
+    <span class="tag">Strategic Roadmap</span>
+  </div>
+  <div class="slide-content">
+    <div class="grid-3">
+      <div class="card" style="border-top: 4px solid var(--accent-red); justify-content: flex-start; gap: 0.75rem;">
+        <span class="badge badge-danger" style="width: fit-content;">1. Restructure / Phase Out</span>
+        <h4 style="font-size: 0.95rem; color: var(--text-main);">Tables &amp; Low-Margin Supplies</h4>
+        <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;">
+          Immediately audit pricing, discounting, and supplier agreements for <strong>Tables</strong>. If margins cannot be renegotiated to reverse the -$7.2k loss, phase out lines to halt profit erosion.
+        </p>
+      </div>
+
+      <div class="card" style="border-top: 4px solid var(--accent-amber); justify-content: flex-start; gap: 0.75rem;">
+        <span class="badge badge-warning" style="width: fit-content;">2. Fix Regional Operations</span>
+        <h4 style="font-size: 0.95rem; color: var(--text-main);">South Territory Interventions</h4>
+        <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;">
+          Execute a freeze on heavy contractual discounts for technology/telecom sales in the <strong>South</strong>. Restructure regional freight overheads to eliminate the -4.04% negative margin trap.
+        </p>
+      </div>
+
+      <div class="card" style="border-top: 4px solid var(--accent-green); justify-content: flex-start; gap: 0.75rem;">
+        <span class="badge badge-success" style="width: fit-content;">3. Capitalize on Core Assets</span>
+        <h4 style="font-size: 0.95rem; color: var(--text-main);">High-Margin Capital Allocation</h4>
+        <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;">
+          Reallocate marketing and sales budget toward <strong>Central Region</strong> and <strong>Binder/Office Supplies</strong> lines. Expand bundled enterprise offers to elevate Corporate segment margins toward 15%+.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>SuperStore Sales Project</span>
+    <span>Slide 8 of 8</span>
+  </div>
+</div>
+
+</body>
+</html>
